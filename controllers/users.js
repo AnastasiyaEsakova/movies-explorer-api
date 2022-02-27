@@ -1,7 +1,16 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+
 const NewError = require('../errors/error');
+const BadRequest = require('../errors/badRequest');
+const Unauthorized = require('../errors/unauthorized');
+const {
+  badRequestUserMessage,
+  authFailData,
+  badRequestNewUserMessage,
+  authBadEmail,
+} = require('../utils/constants');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -40,7 +49,7 @@ module.exports.setUserInfo = (req, res, next) => {
       });
     })
     .catch((e) => {
-      if (e.name === 'ValidationError' || e.name === 'CastError') next(new NewError('Переданы некорректные данные при обновлении профиля.', 400));
+      if (e.name === 'ValidationError' || e.name === 'CastError') next(new BadRequest(badRequestUserMessage));
       else next(e);
     });
 };
@@ -65,8 +74,8 @@ module.exports.createUser = (req, res, next) => {
       });
     })
     .catch((e) => {
-      if (e.name === 'ValidationError') next(new NewError('Переданы некорректные данные при создании пользователя.', 400));
-      else if (e.code === 11000) next(new NewError('Пользователь с такой почтой уже существует.', 409));
+      if (e.name === 'ValidationError') next(new BadRequest(badRequestNewUserMessage));
+      else if (e.code === 11000) next(new NewError(authBadEmail, 409));
       else next(e);
     });
 };
@@ -80,12 +89,12 @@ module.exports.login = (req, res, next) => {
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true,
-        secure: true,
-        sameSite: 'none',
+        // secure: true,
+        // sameSite: 'none',
       })
         .send({ token });
     })
     .catch(() => {
-      next(new NewError('Передан неверный логин или пароль.', 401));
+      next(new Unauthorized(authFailData));
     });
 };

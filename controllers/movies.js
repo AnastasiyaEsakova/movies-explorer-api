@@ -1,5 +1,8 @@
 const Movie = require('../models/movie');
-const NewError = require('../errors/error');
+const BadRequest = require('../errors/badRequest');
+const NotFound = require('../errors/notFound');
+const Forbidden = require('../errors/forbidden');
+const { deleteMovie, badRequestMovieMessage, badRequestMessage } = require('../utils/constants');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})
@@ -15,7 +18,7 @@ module.exports.createMovie = (req, res, next) => {
     year,
     description,
     image,
-    trailer,
+    trailerLink,
     nameRU,
     nameEN,
     thumbnail,
@@ -29,7 +32,7 @@ module.exports.createMovie = (req, res, next) => {
     year,
     description,
     image,
-    trailer,
+    trailerLink,
     nameRU,
     nameEN,
     thumbnail,
@@ -38,7 +41,7 @@ module.exports.createMovie = (req, res, next) => {
   })
     .then((movie) => res.status(200).send(movie))
     .catch((e) => {
-      if (e.name === 'ValidationError') next(new NewError('Переданы некорректные данные при создании фильма.', 400));
+      if (e.name === 'ValidationError') next(new BadRequest(badRequestMovieMessage));
       else next(e);
     });
 };
@@ -47,19 +50,19 @@ module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
     .then((movie) => {
       if (!movie) {
-        throw new NewError('Фильм с указанным _id не найдена.', 404);
+        throw new NotFound();
       }
       if (req.user._id !== movie.owner.toHexString()) {
-        throw new NewError('Вы не можете удалить чужой фильм.', 403);
+        throw new Forbidden();
       } else {
         return Movie.findByIdAndRemove(req.params.movieId);
       }
     })
     .then(() => {
-      res.status(200).send({ message: 'Фильм удалён' });
+      res.status(200).send({ message: deleteMovie });
     })
     .catch((e) => {
-      if (e.name === 'CastError') next(new NewError('Переданы некорректные данные.', 400));
+      if (e.name === 'CastError') next(new BadRequest(badRequestMessage));
       else next(e);
     });
 };
