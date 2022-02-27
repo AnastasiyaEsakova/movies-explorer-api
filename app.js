@@ -32,6 +32,13 @@ app.use(limiter);
 app.use(checkCors);
 app.use(requestLogger);
 
+// для краш-теста
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
+
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).trim(true),
@@ -50,7 +57,12 @@ app.post('/signin', celebrate({
 app.use(auth);
 
 app.get('/signout', (req, res) => {
-  res.status(200).clearCookie('jwt').send({ message: exit });
+  res.status(200).clearCookie('jwt', {
+    // maxAge: 3600000,
+    // httpOnly: true,
+    // secure: true,
+    // sameSite: 'none',
+  }).send({ message: exit });
 });
 
 app.use('/users', userRouter);

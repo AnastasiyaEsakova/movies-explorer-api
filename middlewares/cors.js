@@ -1,4 +1,6 @@
 const allowedCors = [
+  'https://movies.esakova.nomoredomains.work',
+  'http://movies.esakova.nomoredomains.work',
   'http://localhost:3000',
 ];
 
