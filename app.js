@@ -16,7 +16,7 @@ const movieRouter = require('./routes/movies');
 const auth = require('./middlewares/auth');
 const { login, createUser } = require('./controllers/users');
 const { failedPath, serverError, exit } = require('./utils/constants');
-const limiter = require('./middlewares/limiter');
+const { limiter } = require('./middlewares/limiter');
 
 const app = express();
 
