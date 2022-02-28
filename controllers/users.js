@@ -2,14 +2,16 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
-const NewError = require('../errors/error');
 const BadRequest = require('../errors/badRequest');
 const Unauthorized = require('../errors/unauthorized');
+const Conflict = require('../errors/conflict');
 const {
   badRequestUserMessage,
   authFailData,
   badRequestNewUserMessage,
   authBadEmail,
+  testJwt,
+  type,
 } = require('../utils/constants');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -42,7 +44,7 @@ module.exports.setUserInfo = (req, res, next) => {
     },
   )
     .then(() => {
-      res.status(200).send({
+      res.send({
         data: {
           name, email,
         },
@@ -50,6 +52,7 @@ module.exports.setUserInfo = (req, res, next) => {
     })
     .catch((e) => {
       if (e.name === 'ValidationError' || e.name === 'CastError') next(new BadRequest(badRequestUserMessage));
+      else if (e.code === 11000) next(new Conflict(authBadEmail));
       else next(e);
     });
 };
@@ -67,7 +70,7 @@ module.exports.createUser = (req, res, next) => {
       return result;
     })
     .then(() => {
-      res.status(200).send({
+      res.send({
         data: {
           name, email,
         },
@@ -75,7 +78,7 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((e) => {
       if (e.name === 'ValidationError') next(new BadRequest(badRequestNewUserMessage));
-      else if (e.code === 11000) next(new NewError(authBadEmail, 409));
+      else if (e.code === 11000) next(new Conflict(authBadEmail));
       else next(e);
     });
 };
@@ -85,7 +88,11 @@ module.exports.login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: 3600000 });
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === type ? JWT_SECRET : testJwt,
+        { expiresIn: 3600000 },
+      );
       res.cookie('jwt', token, {
         maxAge: 3600000,
         httpOnly: true,

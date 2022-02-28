@@ -2,11 +2,16 @@ const Movie = require('../models/movie');
 const BadRequest = require('../errors/badRequest');
 const NotFound = require('../errors/notFound');
 const Forbidden = require('../errors/forbidden');
-const { deleteMovie, badRequestMovieMessage, badRequestMessage } = require('../utils/constants');
+const {
+  deleteMovie,
+  badRequestMovieMessage,
+  badRequestMessage,
+  notFoundMovieMessage,
+} = require('../utils/constants');
 
 module.exports.getMovies = (req, res, next) => {
   Movie.find({})
-    .then((movies) => res.status(200).send(movies))
+    .then((movies) => res.send(movies))
     .catch(next);
 };
 
@@ -39,7 +44,7 @@ module.exports.createMovie = (req, res, next) => {
     movieId,
     owner: ownerId,
   })
-    .then((movie) => res.status(200).send(movie))
+    .then((movie) => res.send(movie))
     .catch((e) => {
       if (e.name === 'ValidationError') next(new BadRequest(badRequestMovieMessage));
       else next(e);
@@ -50,7 +55,7 @@ module.exports.deleteMovie = (req, res, next) => {
   Movie.findById(req.params.movieId)
     .then((movie) => {
       if (!movie) {
-        throw new NotFound();
+        throw new NotFound(notFoundMovieMessage);
       }
       if (req.user._id !== movie.owner.toHexString()) {
         throw new Forbidden();
@@ -59,7 +64,7 @@ module.exports.deleteMovie = (req, res, next) => {
       }
     })
     .then(() => {
-      res.status(200).send({ message: deleteMovie });
+      res.send({ message: deleteMovie });
     })
     .catch((e) => {
       if (e.name === 'CastError') next(new BadRequest(badRequestMessage));

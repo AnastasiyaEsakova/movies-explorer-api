@@ -1,10 +1,8 @@
-const { notFoundMovieMessage } = require('../utils/constants');
-
 class NotFound extends Error {
-  constructor() {
+  constructor(message) {
     super();
     this.statusCode = 404;
-    this.message = notFoundMovieMessage;
+    this.message = message;
   }
 }
 

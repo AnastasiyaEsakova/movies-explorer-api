@@ -1,4 +1,6 @@
-const regex = /^https?:\/\/[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+/m;
+const dataBaseUrl = 'mongodb://localhost:27017/moviesdb';
+const type = 'production';
+const testJwt = 'dev-secret';
 
 const failedPath = 'Маршрут не найден';
 const serverError = 'На сервере произошла ошибка';
@@ -16,9 +18,10 @@ const badRequestNewUserMessage = 'Переданы некорректные да
 const authBadEmail = 'Пользователь с такой почтой уже существует.';
 const authFailData = 'Передан неверный логин или пароль.';
 
+const crashTest = 'Сервер сейчас упадёт';
+
 module.exports = {
   failedPath,
-  regex,
   serverError,
   exit,
   authMessage,
@@ -31,4 +34,8 @@ module.exports = {
   badRequestNewUserMessage,
   authFailData,
   authBadEmail,
+  crashTest,
+  dataBaseUrl,
+  type,
+  testJwt,
 };
