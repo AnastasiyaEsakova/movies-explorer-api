@@ -20,11 +20,11 @@ module.exports.getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       const {
-        name, email,
+        name, email, _id,
       } = user;
       res.send({
         data: {
-          name, email,
+          name, email, _id,
         },
       });
     })
