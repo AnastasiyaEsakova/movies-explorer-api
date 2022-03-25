@@ -70,11 +70,24 @@ module.exports.createUser = (req, res, next) => {
       return result;
     })
     .then(() => {
-      res.send({
-        data: {
-          name, email,
-        },
-      });
+      User.findUserByCredentials(email, password)
+        .then((user) => {
+          const token = jwt.sign(
+            { _id: user._id },
+            NODE_ENV === type ? JWT_SECRET : testJwt,
+            { expiresIn: 3600000 },
+          );
+          res.cookie('jwt', token, {
+            maxAge: 3600000,
+            httpOnly: true,
+            secure: true,
+            sameSite: 'none',
+          })
+            .send({ data: { token, name, email } });
+        })
+        .catch(() => {
+          next(new Unauthorized(authFailData));
+        });
     })
     .catch((e) => {
       if (e.name === 'ValidationError') next(new BadRequest(badRequestNewUserMessage));
@@ -99,7 +112,7 @@ module.exports.login = (req, res, next) => {
         secure: true,
         sameSite: 'none',
       })
-        .send({ token });
+        .send({ data: { token } });
     })
     .catch(() => {
       next(new Unauthorized(authFailData));
