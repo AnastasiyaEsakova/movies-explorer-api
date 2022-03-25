@@ -12,6 +12,7 @@ const notFoundMovieMessage = 'Фильм с указанным _id не найд
 const forbiddenMovieMesaage = 'Вы не можете удалить чужой фильм.';
 const deleteMovie = 'Фильм удалён';
 const badRequestMessage = 'Переданы некорректные данные.';
+const notFoundMoivesList = 'Нет сохраненных фильмов';
 
 const badRequestUserMessage = 'Переданы некорректные данные при обновлении профиля.';
 const badRequestNewUserMessage = 'Переданы некорректные данные при создании пользователя.';
@@ -38,4 +39,5 @@ module.exports = {
   dataBaseUrl,
   type,
   testJwt,
+  notFoundMoivesList,
 };

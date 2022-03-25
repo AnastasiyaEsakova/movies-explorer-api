@@ -7,11 +7,18 @@ const {
   badRequestMovieMessage,
   badRequestMessage,
   notFoundMovieMessage,
+  notFoundMoivesList,
 } = require('../utils/constants');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
-    .then((movies) => res.send(movies))
+  const ownerId = req.user._id;
+  Movie.find({ owner: ownerId })
+    .then((movies) => {
+      if (!movies) {
+        throw new NotFound(notFoundMoivesList);
+      }
+      res.send(movies);
+    })
     .catch(next);
 };
 
