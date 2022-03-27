@@ -43,10 +43,11 @@ module.exports.setUserInfo = (req, res, next) => {
       runValidators: true,
     },
   )
-    .then(() => {
+    .then((user) => {
+      const { _id } = user;
       res.send({
         data: {
-          name, email,
+          name, email, _id,
         },
       });
     })
